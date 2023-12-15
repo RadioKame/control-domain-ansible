@@ -9,3 +9,69 @@
         name:
           - apache2
           - php
+
+    - name: Copy file with owner and permissions
+      ansible.builtin.copy:
+        src: index.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: '0644'
+
+    
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: Install MariaDB
+      ansible.builtin.apt:
+        name: mariadb-server
+        state: present
+
+    - name: Start MariaDB
+      ansible.builtin.service:
+        name: mariadb
+        state: started
+   
+    - name: Install pip
+      apt:
+        name: python3-pip
+        state: present
+
+    - name: Install PyMySQL
+      pip:
+        name: pymysql
+        state: present
+
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - apache2
+          - php
+          - php-cli
+          - php-curl
+          - php-gd
+          - php-intl
+          - php-mysql
+          - php-mbstring
+          - php-xml
+          - php-zip
+        state: present
+
+    - name: Download MediaWiki
+      ansible.builtin.get_url:
+        url: https://releases.wikimedia.org/mediawiki/1.35/mediawiki-1.35.1.tar.gz
+        dest: /tmp/mediawiki-1.35.1.tar.gz
+
+    - name: Extract MediaWiki
+      ansible.builtin.unarchive:
+        src: /tmp/mediawiki-1.35.1.tar.gz
+        dest: /var/www/html/
+        remote_src: yes
+
+    - name: Change ownership
+      ansible.builtin.file:
+        path: /var/www/html/mediawiki
+        owner: www-data
+        group: www-data
+        recurse: yes
